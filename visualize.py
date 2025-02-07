@@ -51,6 +51,7 @@ def visualize(visualizations):
         raise ValueError("Directories do not contain the same amount of files")
     n = len(files[0])
     for i in range (n):
+        print(f"Timestamp: {i}")
         rr.set_time_sequence("frame", i)
         for d_i, d in enumerate(visualizations):
             if d['data_type'] == 'pcd':
