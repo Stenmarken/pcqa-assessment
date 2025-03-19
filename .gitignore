@@ -173,3 +173,4 @@ cython_debug/
 output/
 pcqa-env
 .DS_STORE
+config.yaml
