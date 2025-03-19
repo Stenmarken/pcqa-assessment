@@ -1,10 +1,12 @@
 import open3d as o3d
 from pathlib import Path
 import numpy as np
+import yaml
 
 
 def kitti_bin_to_ply(input_dir, file_names, output_dir):
-    for f in file_names:
+    for idx, f in enumerate(file_names):
+        print(f"File: #{idx+1}. Path: {f}")
         path = Path(input_dir)
         file_path = path / f
 
@@ -22,8 +24,16 @@ def kitti_bin_to_ply(input_dir, file_names, output_dir):
 
 
 if __name__ == "__main__":
-    for severity in ["light", "moderate", "heavy"]:
-        input_dir = Path(f"output/distorted/{severity}/velodyne/")
+    with open('config.yaml', 'r') as file:
+        data = yaml.safe_load(file)
+
+    bin_dirs = data["bin_dirs"]
+    ply_dirs = data["ply_dirs"]
+    assert len(bin_dirs) == len(ply_dirs)
+
+    for i in range(len(bin_dirs)):
+        print(f"Directory: {ply_dirs[i]}")
+        input_dir = Path(bin_dirs[i])
         bin_files = [f.name for f in input_dir.glob("*.bin")]
-        output_dir = f"output/distorted_ply/{severity}/velodyne/"
+        output_dir = ply_dirs[i]
         kitti_bin_to_ply(input_dir, bin_files, output_dir)
