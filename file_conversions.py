@@ -22,7 +22,8 @@ def kitti_bin_to_ply(input_dir, file_names, output_dir):
 
 
 if __name__ == "__main__":
-    input_dir = Path("output/distorted/moderate/velodyne/")
-    bin_files = [f.name for f in input_dir.glob("*.bin")]
-    output_dir = "output/distorted/moderate/velodyne/ply/"
-    kitti_bin_to_ply(input_dir, bin_files, output_dir)
+    for severity in ["light", "moderate", "heavy"]:
+        input_dir = Path(f"output/distorted/{severity}/velodyne/")
+        bin_files = [f.name for f in input_dir.glob("*.bin")]
+        output_dir = f"output/distorted_ply/{severity}/velodyne/"
+        kitti_bin_to_ply(input_dir, bin_files, output_dir)
