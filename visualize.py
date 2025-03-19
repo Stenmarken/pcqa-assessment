@@ -6,6 +6,11 @@ import os
 import rerun as rr
 from PIL import Image
 
+def read_kitti_file(path):
+    pc_data = np.fromfile(path, '<f4')
+    print(f"pc_data.shape: {pc_data.shape}")
+    pc_data = np.reshape(pc_data, (-1, 4))
+
 def convert_kitti_bin_to_pcd(binFilePath):
     """
     Perhaps this conversion is not entirely correct
@@ -42,7 +47,6 @@ def all_same_length(lists):
     if not all(len(l) == the_len for l in it):
         return False
     return True
-    
 
 def visualize(visualizations):
     rr.init("PCD and image sequence", spawn=True)
@@ -63,7 +67,6 @@ def visualize(visualizations):
                 image = np.array(Image.open(files[d_i][i]))
                 rr.log(f"{d['name']}", rr.Image(image))
 
-
 if __name__ == "__main__":
     visualizations = [
         {'data_type': 'pcd',
@@ -81,6 +84,7 @@ if __name__ == "__main__":
         }
     ]
     visualize(visualizations)
+    #read_kitti_file()
     
     #visualize(lidar_path="output/RTB_Lidar_Front",
               #img_path="output/RTB_Lidar_Left")
