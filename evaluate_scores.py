@@ -50,7 +50,6 @@ def plot_scores(path):
     color_dict = {"light_ply": "green", "moderate_ply": "yellow", "heavy_ply": "red"}
     for k, v in transformed_d.items():
         points.append((int(k.stem), v, color_dict[str(k.parent)]))
-
     x_values = [p[0] for p in points]
     y_values = [p[1] for p in points]
     colors = [p[2] for p in points]
@@ -63,5 +62,5 @@ def plot_scores(path):
     plt.show()
 
 if __name__ == "__main__":
-    #main("output/output.json")
-    plot_scores("output/output.json")
+    main("output.json")
+    #plot_scores("output/output.json")

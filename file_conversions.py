@@ -2,38 +2,60 @@ import open3d as o3d
 from pathlib import Path
 import numpy as np
 import yaml
+import shutil
+import argparse
 
+def kitti_bin_to_ply(file_path):
+    # Is it really np.float32?
+    bin = np.fromfile(file_path, dtype=np.float32).reshape(-1, 4)
+    xyz = bin[:, :3]
+    ply = o3d.geometry.PointCloud()
+    ply.points = o3d.utility.Vector3dVector(xyz)
+    return ply
 
-def kitti_bin_to_ply(input_dir, file_names, output_dir):
-    for idx, f in enumerate(file_names):
+def kitti_bin_to_ply_directory(input_dir, output_dir):
+    input_dir = Path(input_dir)
+    bin_files = [file for file in input_dir.rglob("*") if file.is_file() and file.suffix in {".bin"}]
+    remaining_files = [file for file in input_dir.rglob("*") if file.is_file() and file.suffix not in {".bin"}]
+    for idx, f in enumerate(bin_files):
         print(f"File: #{idx+1}. Path: {f}")
         path = Path(input_dir)
         file_path = path / f
-
-        # Is it really np.float32?
-        bin = np.fromfile(file_path, dtype=np.float32).reshape(-1, 4)
-        xyz = bin[:, :3]
-        pcd = o3d.geometry.PointCloud()
-        pcd.points = o3d.utility.Vector3dVector(xyz)
+        ply = kitti_bin_to_ply(file_path)
 
         output_path = Path(output_dir)
         output_path.mkdir(parents=True, exist_ok=True)
         f = Path(f).stem
         output_path = output_path / f
-        o3d.io.write_point_cloud(f"{output_path}.ply", pcd, print_progress=True)
+        o3d.io.write_point_cloud(f"{output_path}.ply", ply, print_progress=True)
+    for file in remaining_files:
+        if file.is_file():
+            shutil.copy(file, output_dir)
 
 
 if __name__ == "__main__":
-    with open('config.yaml', 'r') as file:
-        data = yaml.safe_load(file)
+    parser = argparse.ArgumentParser(
+        description="Converts KITTI bin files to PLY files"
+    )
+    parser.add_argument(
+        "-c",
+        "--config",
+        type=str,
+        required=True,
+        help='Path to the configuration file'
+    )
+    args = parser.parse_args()
+    print(args)
+    with open(args.config, 'r') as f:
+        data = yaml.safe_load(f)
 
-    bin_dirs = data["bin_dirs"]
-    ply_dirs = data["ply_dirs"]
-    assert len(bin_dirs) == len(ply_dirs)
+    base_bin_dir = Path(data["bin_dir"])
+    base_ply_dir = Path(data["ply_dir"])
 
-    for i in range(len(bin_dirs)):
-        print(f"Directory: {ply_dirs[i]}")
-        input_dir = Path(bin_dirs[i])
-        bin_files = [f.name for f in input_dir.glob("*.bin")]
-        output_dir = ply_dirs[i]
-        kitti_bin_to_ply(input_dir, bin_files, output_dir)
+    bin_dirs = [d for d in base_bin_dir.iterdir() if d.is_dir()]
+
+    for bin_dir in bin_dirs:
+        ply_dir = base_ply_dir / bin_dir.name
+        ply_dir.mkdir(parents=True, exist_ok=True)
+
+        kitti_bin_to_ply_directory(bin_dir, ply_dir)

@@ -174,4 +174,6 @@ output/
 pcqa-env
 .DS_STORE
 
-config.yaml
+configs/
+output.json
+select_point_clouds.py
