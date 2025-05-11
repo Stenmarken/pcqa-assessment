@@ -177,3 +177,5 @@ pcqa-env
 configs/
 output.json
 select_point_clouds.py
+visualize_intensities.py
+production_run_mm_pcqa.sh

@@ -9,8 +9,13 @@ def kitti_bin_to_ply(file_path):
     # Is it really np.float32?
     bin = np.fromfile(file_path, dtype=np.float32).reshape(-1, 4)
     xyz = bin[:, :3]
+    intensities = bin[:, 3]
+    intensity_normalized = np.clip(intensities / 255.0, 0.0, 1.0)
+    colors = np.stack([intensity_normalized, intensity_normalized, intensity_normalized], axis = 1)
+
     ply = o3d.geometry.PointCloud()
     ply.points = o3d.utility.Vector3dVector(xyz)
+    ply.colors = o3d.utility.Vector3dVector(colors)
     return ply
 
 def kitti_bin_to_ply_directory(input_dir, output_dir):
